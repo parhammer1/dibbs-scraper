@@ -40,12 +40,18 @@ def scrape_latest(limit: int = 5) -> List[Dict]:
             description = cells[1].inner_text().strip()
             deadline = cells[2].inner_text().strip()
             buyer = cells[3].inner_text().strip()
+            nsn = cells[4].inner_text().strip() if len(cells) > 4 else ""
+            fsc = cells[5].inner_text().strip() if len(cells) > 5 else ""
+            posted = cells[6].inner_text().strip() if len(cells) > 6 else ""
             results.append(
                 {
                     "solicitation": solicitation,
                     "description": description,
                     "deadline": deadline,
                     "buyer": buyer,
+                    "nsn": nsn,
+                    "fsc": fsc,
+                    "posted": posted,
                 }
             )
         browser.close()
@@ -66,12 +72,18 @@ def scrape_solicitation_detail(solicitation: str) -> Dict:
         description = page.locator(".description").inner_text()
         deadline = page.locator(".deadline").inner_text()
         buyer = page.locator(".buyer").inner_text()
+        nsn = page.locator(".nsn").inner_text() if page.locator(".nsn").count() else ""
+        fsc = page.locator(".fsc").inner_text() if page.locator(".fsc").count() else ""
+        posted = page.locator(".posted").inner_text() if page.locator(".posted").count() else ""
         browser.close()
         return {
             "solicitation": solicitation,
             "description": description.strip(),
             "deadline": deadline.strip(),
             "buyer": buyer.strip(),
+            "nsn": nsn.strip(),
+            "fsc": fsc.strip(),
+            "posted": posted.strip(),
         }
 
 
