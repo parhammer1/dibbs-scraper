@@ -18,6 +18,9 @@ def init_db() -> None:
             description TEXT,
             deadline TEXT,
             buyer TEXT,
+            nsn TEXT,
+            fsc TEXT,
+            posted TEXT,
             raw_data TEXT
         )
         """
@@ -31,14 +34,18 @@ def insert_solicitation(data: Dict) -> None:
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """
-        INSERT OR IGNORE INTO solicitations (solicitation, description, deadline, buyer, raw_data)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT OR IGNORE INTO solicitations (
+            solicitation, description, deadline, buyer, nsn, fsc, posted, raw_data
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             data.get("solicitation"),
             data.get("description"),
             data.get("deadline"),
             data.get("buyer"),
+            data.get("nsn"),
+            data.get("fsc"),
+            data.get("posted"),
             json.dumps(data),
         ),
     )
@@ -50,11 +57,11 @@ def fetch_all() -> List[Dict]:
     """Return all solicitations stored in the database."""
     conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
-        "SELECT solicitation, description, deadline, buyer, raw_data FROM solicitations"
+        "SELECT solicitation, description, deadline, buyer, nsn, fsc, posted, raw_data FROM solicitations"
     ).fetchall()
     conn.close()
     result = []
-    for solicitation, description, deadline, buyer, raw_json in rows:
+    for solicitation, description, deadline, buyer, nsn, fsc, posted, raw_json in rows:
         item = json.loads(raw_json)
         item.update(
             {
@@ -62,6 +69,9 @@ def fetch_all() -> List[Dict]:
                 "description": description,
                 "deadline": deadline,
                 "buyer": buyer,
+                "nsn": nsn,
+                "fsc": fsc,
+                "posted": posted,
             }
         )
         result.append(item)
