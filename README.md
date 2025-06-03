@@ -1,20 +1,20 @@
 # DIBBS Scraper and Analyzer
 
-This project provides a simple example of how to scrape public solicitations from the DLA Internet Bid Board System (DIBBS), store them in a local SQLite database, and use OpenAI GPT to summarize solicitations or draft outreach emails. A Streamlit web interface allows a non-technical user to run the scraper and interact with the data.
+This project provides a simple example of how to scrape public solicitations from the DLA Internet Bid Board System (DIBBS) and display them with Streamlit. A GitHub Action runs the scraper every two hours and commits a CSV file with the latest data so Streamlit Cloud can redeploy automatically.
 
 ## Setup
 
 1. **Install dependencies**
    ```bash
    python -m pip install -r requirements.txt
-   playwright install
    ```
-2. **Set environment variables**
-   Create a `.env` file or export `OPENAI_API_KEY` with your OpenAI credentials.
-
+2. **Run the scraper manually (optional)**
+   ```bash
+   python dibbs_scraper.py
+   ```
 3. **Run the app**
    ```bash
    streamlit run app.py
    ```
 
-The scraper uses Playwright and includes a simple disclaimer handler. Selectors may need to be adjusted for the real DIBBS site.
+The scraper uses `requests` and `BeautifulSoup` with placeholder logic. Update the selectors in `dibbs_scraper.py` when scraping the real DIBBS website.

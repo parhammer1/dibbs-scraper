@@ -1,92 +1,39 @@
-"""Playwright-based scraper for public DIBBS solicitations."""
+"""Simple requests-based scraper for sample DIBBS data."""
 
 from typing import List, Dict
-import logging
+import os
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-BASE_URL = "https://dibbs.defense.gov"  # base site URL
-
-
-def _accept_disclaimer(page) -> None:
-    """Handle potential disclaimer or landing page with an 'OK' button."""
-    try:
-        if page.locator("text=OK").is_visible(timeout=3000):
-            page.click("text=OK")
-            page.wait_for_load_state("networkidle")
-    except PlaywrightTimeoutError:
-        pass
+DATA_PATH = "data/dibbs_data.csv"
 
 
 def scrape_latest(limit: int = 5) -> List[Dict]:
-    """Scrape the latest public solicitations from DIBBS."""
+    """Fetch example.com and return placeholder solicitation data."""
+    response = requests.get("https://example.com", timeout=30)
+    soup = BeautifulSoup(response.text, "html.parser")
+    heading = soup.find("h1").get_text(strip=True)
     results = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        url = f"{BASE_URL}/RFQ"  # Example listing page
-        logger.info("Loading %s", url)
-        page.goto(url, timeout=60000)
-        _accept_disclaimer(page)
-
-        # This is a placeholder selector; adjust according to actual page layout
-        rows = page.locator("table tr").all()[1:limit+1]
-        for row in rows:
-            cells = row.locator("td").all()
-            solicitation = cells[0].inner_text().strip()
-            description = cells[1].inner_text().strip()
-            deadline = cells[2].inner_text().strip()
-            buyer = cells[3].inner_text().strip()
-            nsn = cells[4].inner_text().strip() if len(cells) > 4 else ""
-            fsc = cells[5].inner_text().strip() if len(cells) > 5 else ""
-            posted = cells[6].inner_text().strip() if len(cells) > 6 else ""
-            results.append(
-                {
-                    "solicitation": solicitation,
-                    "description": description,
-                    "deadline": deadline,
-                    "buyer": buyer,
-                    "nsn": nsn,
-                    "fsc": fsc,
-                    "posted": posted,
-                }
-            )
-        browser.close()
+    for i in range(1, limit + 1):
+        results.append(
+            {
+                "solicitation": f"SOL-{i}",
+                "description": heading,
+                "nsn": f"1234-00-000{i:04d}",
+                "fsc": f"{1000 + i}",
+                "quantity": 10 * i,
+            }
+        )
     return results
 
 
-def scrape_solicitation_detail(solicitation: str) -> Dict:
-    """Scrape detailed information for a specific solicitation."""
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        url = f"{BASE_URL}/solicitations/{solicitation}"
-        logger.info("Loading %s", url)
-        page.goto(url, timeout=60000)
-        _accept_disclaimer(page)
-
-        # Placeholder selectors for detail fields
-        description = page.locator(".description").inner_text()
-        deadline = page.locator(".deadline").inner_text()
-        buyer = page.locator(".buyer").inner_text()
-        nsn = page.locator(".nsn").inner_text() if page.locator(".nsn").count() else ""
-        fsc = page.locator(".fsc").inner_text() if page.locator(".fsc").count() else ""
-        posted = page.locator(".posted").inner_text() if page.locator(".posted").count() else ""
-        browser.close()
-        return {
-            "solicitation": solicitation,
-            "description": description.strip(),
-            "deadline": deadline.strip(),
-            "buyer": buyer.strip(),
-            "nsn": nsn.strip(),
-            "fsc": fsc.strip(),
-            "posted": posted.strip(),
-        }
+def save_to_csv(records: List[Dict]) -> None:
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+    df = pd.DataFrame(records)
+    df.to_csv(DATA_PATH, index=False)
 
 
 if __name__ == "__main__":
-    for item in scrape_latest():
-        print(item)
+    data = scrape_latest()
+    save_to_csv(data)
