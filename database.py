@@ -1,10 +1,12 @@
 """Simple SQLite database utilities for storing DIBBS solicitations."""
 
+import os
 import sqlite3
 import json
 from typing import Dict, List
 
-DB_PATH = "solicitations.db"
+DATA_DIR = "data"
+DB_PATH = os.path.join(DATA_DIR, "solicitations.db")
 
 
 def init_db() -> None:

@@ -4,3 +4,4 @@ numpy
 openai
 beautifulsoup4
 requests
+playwright
