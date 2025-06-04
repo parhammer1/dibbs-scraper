@@ -1,6 +1,6 @@
 # DIBBS Scraper and Analyzer
 
-This project provides a simple example of how to scrape public solicitations from the DLA Internet Bid Board System (DIBBS) and display them with Streamlit. A GitHub Action runs the scraper every two hours and commits a CSV file with the latest data so Streamlit Cloud can redeploy automatically.
+This project provides a simple example of how to scrape public solicitations from the DLA Internet Bid Board System (DIBBS) and display them with Streamlit. A GitHub Action runs a Playwright-based scraper on a schedule and uploads an updated SQLite database as a workflow artifact so Streamlit Cloud can redeploy automatically.
 
 ## Setup
 
@@ -10,11 +10,11 @@ This project provides a simple example of how to scrape public solicitations fro
    ```
 2. **Run the scraper manually (optional)**
    ```bash
-   python dibbs_scraper.py
+   python scraper.py
    ```
 3. **Run the app**
    ```bash
    streamlit run app.py
    ```
 
-The scraper uses `requests` and `BeautifulSoup` with placeholder logic. Update the selectors in `dibbs_scraper.py` when scraping the real DIBBS website.
+The scraper uses Playwright with placeholder logic. Update the selectors in `scraper.py` when scraping the real DIBBS website. GitHub Actions runs `scraper.py` every 12 hours and uploads `data/solicitations.db` as an artifact instead of committing it.

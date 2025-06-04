@@ -1,7 +1,9 @@
+import os
 import sqlite3
 from typing import List, Dict, Optional
 
-DB_PATH = "solicitations.db"
+DATA_DIR = "data"
+DB_PATH = os.path.join(DATA_DIR, "solicitations.db")
 
 
 def fetch_solicitations(fsc: str = "", nsn: str = "", start_date: str = "", end_date: str = "") -> List[Dict]:
